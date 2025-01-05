@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-mongoose.connect('mongodb://localhost:26017/socialNetworkDB'{
+mongoose.connect('mongodb://localhost:26017/socialNetworkDB', {
 useNewUrlParser: true,
 useUnifiedTopology: true,
 });
