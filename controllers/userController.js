@@ -1,96 +1,104 @@
-import User from '../models/User.js';
-import Thought from '../models/Thought.js';
+import thought from "../models/thought.js";
+import user from "../models/user.js";
 
+// get all users
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().populate('thoughts').populate('friends');
+    const users = await user.find().populate("thoughts").populate("friends");
     res.json(users);
-  } catch (err) {
-    res.status(500).json(err);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
+// get user by id
 export const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate('thoughts').populate('friends');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const userById = await user.findById(req.params.id).populate("thoughts").populate("friends");
+    if (!userById) {
+      return res.status(404).json({ message: "No user with this id!" });
     }
-    res.json(user);
-  } catch (err) {
-    res.status(500).json(err);
+    res.json(userById);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
+// create a user
 export const createUser = async (req, res) => {
   try {
-    const newUser = await User.create(req.body);
+    const newUser = await user.create(req.body);
     res.json(newUser);
-  } catch (err) {
-    res.status(500).json(err);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
+// update a user
 export const updateUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = await user.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true }
+      { 
+        new: true,
+        runValidators: true
+      }
     );
     if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "No user with this id!" });
     }
     res.json(updatedUser);
-  } catch (err) {
-    res.status(500).json(err);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
+// delete a user
 export const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const deletedUser = await user.findByIdAndDelete(req.params.id);
+    if (!deletedUser) {
+      return res.status(404).json({ message: "No user with this id!" });
     }
-    // BONUS: Remove a user's associated thoughts when deleted
-    await Thought.deleteMany({ username: user.username });
-    res.json({ message: 'User and associated thoughts deleted' });
-  } catch (err) {
-    res.status(500).json(err);
+    // delete all thoughts related to the user
+    await thought.deleteMany({ username: user.username });
+    res.json(deletedUser);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
-// Add a new friend to a user's friend list
+// add a friend
 export const addFriend = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
+    const userFriend = await user.findByIdAndUpdate(
       req.params.userId,
-      { $addToSet: { friends: req.params.friendId } },
+      { $push: { friends: req.params.friendId } },
       { new: true }
     );
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!userFriend) {
+      return res.status(404).json({ message: "No user with this id!" });
     }
-    res.json(user);
-  } catch (err) {
-    res.status(500).json(err);
+    res.json(userFriend);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
-// Remove a friend from a user's friend list
-export const removeFriend = async (req, res) => {
+// remove a friend
+export const deleteFriend = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
+    const userFriend = await user.findByIdAndUpdate(
       req.params.userId,
       { $pull: { friends: req.params.friendId } },
       { new: true }
     );
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!userFriend) {
+      return res.status(404).json({ message: "No user with this id!" });
     }
-    res.json(user);
-  } catch (err) {
-    res.status(500).json(err);
+    res.json(userFriend);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
